@@ -7,10 +7,17 @@
 _listen = function(event)
 {
 	let greyScaledPixel = 0;
+	is4isAlpha = 1
 	for (i = 0; i < event.detail.data.length; i++){
-		greyScaledPixel += event.detail.data[i];
+		if (is4isAlpha == 4){
+			is4isAlpha = 1;
+		}
+		else{
+			greyScaledPixel += event.detail.data[i];
+			is4isAlpha += 1;			
+		}
 	}
-	greyScaledPixel = Math.floor(greyScaledPixel/1600);
+	greyScaledPixel = Math.floor(greyScaledPixel/1200);
 	console.log(greyScaledPixel);
 	console.log("_____________");
 };
