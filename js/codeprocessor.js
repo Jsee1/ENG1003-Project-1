@@ -13,7 +13,7 @@ var findingDuration = {
 _listen = function(event)
 {
 	let greyScaledPixel = 0;
-	is4isAlpha = 1
+	is4isAlpha = 1;
 	for (i = 0; i < event.detail.data.length; i++){
 		if (is4isAlpha == 4){
 			is4isAlpha = 1;
@@ -24,9 +24,10 @@ _listen = function(event)
 		}
 	}
 	greyScaledPixel = Math.floor(greyScaledPixel/1200);
+	console.log('____________________');
 	console.log(greyScaledPixel);
-	console.log("_____________");
-};
+//GreyScaled Values Done here. Need to find method to store the data.
+}
 
 /**
  * Your header documentation here for clear
