@@ -6,7 +6,13 @@
  */
 _listen = function(event)
 {
-	// your code here
+	let greyScaledPixel = 0;
+	for (i = 0; i < event.detail.data.length; i++){
+		greyScaledPixel += event.detail.data[i];
+	}
+	greyScaledPixel = Math.floor(greyScaledPixel/1600);
+	console.log(greyScaledPixel);
+	console.log("_____________");
 };
 
 /**
