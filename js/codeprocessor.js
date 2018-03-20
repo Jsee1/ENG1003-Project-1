@@ -4,11 +4,15 @@
  * 		event will hold an Event object with the pixels in
  *   	event.detail.data and the timestamp in event.timeStamp
  */
-var findingDuration = {
+let findingDuration = {
 	duration: 0,
-	previousValues: 0,
-	firstBright: false,
-	firstDark: false,
+	brightDarkDivide: 175,
+	prevBright: false,
+	halfGap: 0,
+	fullGap: 0,
+	gapsFound: false,
+	gapLength: 0,
+	ignoreFirst:true,
 }
 _listen = function(event)
 {
@@ -27,7 +31,51 @@ _listen = function(event)
 	console.log('____________________');
 	console.log(greyScaledPixel);
 //GreyScaled Values Done here. Need to find method to store the data.
+
+
+
+	if (findingDuration.gapsFound == false){
+		//If currently dark, and previous tick is bright. Start of gap.
+		if (greyScaledPixel < findingDuration.brightDarkDivide && findingDuration.prevBright == true){
+			findingDuration.duration = event.timeStamp;
+			findingDuration.prevBright = false;
+			findingDuration.ignoreFirst = false;
+			console.log("Gap Start");
+		} 
+		//If currently bright, and previous tick is dark. End of gap.
+		else if (greyScaledPixel > findingDuration.brightDarkDivide && findingDuration.prevBright == false){
+			//Ignore the first Dark to Bright
+			if (findingDuration.ignoreFirst){
+				findingDuration.ignoreFirst = false;
+				findingDuration.prevBright = true;
+				console.log("Ignore the First");
+			} else{
+				findingDuration.prevBright = true;
+				findingDuration.gapLength = Math.floor(event.timeStamp - findingDuration.duration);
+				console.log("Gap End");
+				//Initialising first time Halfgap.
+				if (findingDuration.halfGap == 0){
+					findingDuration.halfGap = findingDuration.gapLength;
+				} //Tolerance of +-30
+				else if  (findingDuration.gapLength > (findingDuration.halfGap + 30)) {
+					findingDuration.fullGap = findingDuration.gapLength;
+					findingDuration.gapsFound = true;
+					console.log("halfGap is " + findingDuration.halfGap);
+					console.log("fullGap is " + findingDuration.fullGap);
+				}	else if (findingDuration.gapLength < (findingDuration.halfGap - 30)){
+					findingDuration.fullGap = findingDuration.halfGap;
+					findingDuration.halfGap = findingDuration.gapLength;
+					findingDuration.gapsFound = true;
+					console.log("halfGap is " + findingDuration.halfGap);
+					console.log("fullGap is " + findingDuration.fullGap);
+				}
+			}
+
+		}
+	}
 }
+		
+
 
 /**
  * Your header documentation here for clear
