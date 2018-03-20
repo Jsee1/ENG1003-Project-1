@@ -4,6 +4,12 @@
  * 		event will hold an Event object with the pixels in
  *   	event.detail.data and the timestamp in event.timeStamp
  */
+var findingDuration = {
+	duration: 0,
+	previousValues: 0,
+	firstBright: false,
+	firstDark: false,
+}
 _listen = function(event)
 {
 	let greyScaledPixel = 0;
