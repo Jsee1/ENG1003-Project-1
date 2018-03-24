@@ -14,6 +14,22 @@ let findingDuration = {
 	gapLength: 0,
 	ignoreFirst:true,
 }
+let tapInfo =  {					
+	tapTable:  [['0','0','0','0','0','0'],				//Tap Conversion Array indexed from 1
+				['0','e','t','a','n','d'],
+				['0','o','i','r','u','c'],
+				['0','s','h','m','f','p'],
+				['0','l','y','g','v','j'],
+				['0','w','b','x','q','z']],
+};
+
+let conversionInfo = {
+	duration: 0,
+	currentIndex: 0,
+	prevDark: false,
+	ignoredFirst: false,
+	rawDataArray: [],
+};
 _listen = function(event)
 {
 	let greyScaledPixel = 0;
