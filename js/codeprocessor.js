@@ -73,12 +73,12 @@ _listen = function(event)
 				if (findingDuration.halfGap == 0){
 					findingDuration.halfGap = findingDuration.gapLength;
 				} //Tolerance of +-30
-				else if  (findingDuration.gapLength > (findingDuration.halfGap + 30)) {
+				else if  (findingDuration.gapLength > (findingDuration.halfGap + 100)) {
 					findingDuration.fullGap = findingDuration.gapLength;
 					findingDuration.gapsFound = true;
 					console.log("halfGap is " + findingDuration.halfGap);
 					console.log("fullGap is " + findingDuration.fullGap);
-				}	else if (findingDuration.gapLength < (findingDuration.halfGap - 30)){
+				}	else if (findingDuration.gapLength < (findingDuration.halfGap - 100)){
 					findingDuration.fullGap = findingDuration.halfGap;
 					findingDuration.halfGap = findingDuration.gapLength;
 					findingDuration.gapsFound = true;
@@ -118,24 +118,34 @@ if (conversionInfo.ignoredFirst == true){
  */
 clear = function()
 {
+	console.log("Entered the clear function");
 	// your code here
 };
 
 /**
  * Your header documentation here for translate
  */
+
 translate = function()
 {	
-	
-	var tapInfo =  {				
-		tapTable:  [['0','0','0','0','0','0'],				//Tap Conversion Array indexed from 1
-					['0','e','t','a','n','d'],
-					['0','o','i','r','u','c'],
-					['0','s','h','m','f','p'],
-					['0','l','y','g','v','j'],
-					['0','w','b','x','q','z']],
-		gapDuration: 0										//Gap duration intially set to 0.
-	};
-
+	console.log(conversionInfo.rawDataArray);
+	newArray = [];
+	for (i = 0; i < conversionInfo.rawDataArray.length ; i++){
+		console.log('Still Working on it');
+		if (conversionInfo.rawDataArray[i] == 'T'){
+			newArray.push('T');
+		}
+		else{
+			absoluteVal = Math.abs(conversionInfo.rawDataArray[i] - findingDuration.halfGap)
+			if (absoluteVal < 150){
+				newArray.push('H');
+			}
+			else{
+				newArray.push('F');
+			}
+		}
+	}
+	console.log(newArray);
+	console.log("Entered the Translate Function");
 	// your code here
 };
