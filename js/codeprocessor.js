@@ -45,11 +45,11 @@ _listen = function(event)
 	}
 	greyScaledPixel = Math.floor(greyScaledPixel/1200);
 	console.log('____________________');
-	console.log(greyScaledPixel);
+	console.log(greyScaledPixel); 
 //GreyScaled Values Done here. Need to find method to store the data.
 
 
-
+//Finding the Gap Length.
 	if (findingDuration.gapsFound == false){
 		//If currently dark, and previous tick is bright. Start of gap.
 		if (greyScaledPixel < findingDuration.brightDarkDivide && findingDuration.prevBright == true){
@@ -89,8 +89,28 @@ _listen = function(event)
 
 		}
 	}
+//Filling rawDataArray with times and taps
+
+
+if (greyScaledPixel > 175 & conversionInfo.rawDataArray[conversionInfo.currentIndex  - 1] != 'T'){
+	console.log(conversionInfo.rawDataArray + conversionInfo.currentIndex);
+	conversionInfo.rawDataArray.push('T');
+	conversionInfo.currentIndex += 1;
+	conversionInfo.ignoredFirst = true;
 }
-		
+
+if (conversionInfo.ignoredFirst == true){
+	if (greyScaledPixel < 175 & conversionInfo.prevDark == false) {
+		conversionInfo.duration = event.timeStamp;
+		conversionInfo.prevDark = true;
+	}
+	else if (greyScaledPixel > 175 & conversionInfo.prevDark == true){
+		conversionInfo.rawDataArray.push(Math.round(event.timeStamp - conversionInfo.duration));
+		conversionInfo.prevDark = false;
+		conversionInfo.currentIndex +=1
+		}
+	}
+}	
 
 
 /**
