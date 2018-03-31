@@ -4,6 +4,10 @@
  * 		event will hold an Event object with the pixels in
  *   	event.detail.data and the timestamp in event.timeStamp
  */
+
+let rxTranslateOutputRef = document.getElementById("rx-translated");
+let rxCodeOutputRef = document.getElementById("rx-code");
+
 let findingDuration = {
 	duration: 0,
 	brightDarkDivide: 175,
@@ -91,14 +95,17 @@ _listen = function(event)
 	}
 //Filling rawDataArray with times and taps
 
-
+//If currently pixel is bright, and previous index in the array is not then this is a tap.
 if (greyScaledPixel > 175 & conversionInfo.rawDataArray[conversionInfo.currentIndex  - 1] != 'T'){
 	console.log(conversionInfo.rawDataArray + conversionInfo.currentIndex);
 	conversionInfo.rawDataArray.push('T');
 	conversionInfo.currentIndex += 1;
 	conversionInfo.ignoredFirst = true;
 }
-
+/*If the current pixel is dark changing from bright, start duration timer until change from
+dark to bright. At this point, stop timing and store that duration.
+ignoredFirst value to ensure that it does not push the initial darkness prior to first light 
+*/
 if (conversionInfo.ignoredFirst == true){
 	if (greyScaledPixel < 175 & conversionInfo.prevDark == false) {
 		conversionInfo.duration = event.timeStamp;
@@ -146,6 +153,8 @@ translate = function()
 		}
 	}
 	console.log(newArray);
+	rxTranslateOutputRef.innerHTML = "Code for Translate";
+	rxCodeOutputRef.innerHTML = "Code for Code";
 	console.log("Entered the Translate Function");
 	// your code here
 };
