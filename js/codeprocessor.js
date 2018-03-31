@@ -33,6 +33,7 @@ let conversionInfo = {
 	prevDark: false,
 	ignoredFirst: false,
 	rawDataArray: [],
+	tempDataArray: [],
 };
 _listen = function(event)
 {
@@ -54,12 +55,11 @@ _listen = function(event)
 
 
 //Finding the Gap Length.
-	if (findingDuration.gapsFound == false){
 		//If currently dark, and previous tick is bright. Start of gap.
 		if (greyScaledPixel < findingDuration.brightDarkDivide && findingDuration.prevBright == true){
+			conversionInfo.tempDataArray.push('T');
 			findingDuration.duration = event.timeStamp;
 			findingDuration.prevBright = false;
-			findingDuration.ignoreFirst = false;
 			console.log("Gap Start");
 		} 
 		//If currently bright, and previous tick is dark. End of gap.
@@ -71,28 +71,34 @@ _listen = function(event)
 				console.log("Ignore the First");
 			} else{
 				findingDuration.prevBright = true;
-				findingDuration.gapLength = Math.floor(event.timeStamp - findingDuration.duration);
+				findingDuration.gapLength = Math.round(event.timeStamp - findingDuration.duration);
+				conversionInfo.tempDataArray.push(findingDuration.gapLength);
 				console.log("Gap End");
 				//Initialising first time Halfgap.
-				if (findingDuration.halfGap == 0){
-					findingDuration.halfGap = findingDuration.gapLength;
-				} //Tolerance of +-30
-				else if  (findingDuration.gapLength > (findingDuration.halfGap + 100)) {
-					findingDuration.fullGap = findingDuration.gapLength;
-					findingDuration.gapsFound = true;
-					console.log("halfGap is " + findingDuration.halfGap);
-					console.log("fullGap is " + findingDuration.fullGap);
-				}	else if (findingDuration.gapLength < (findingDuration.halfGap - 100)){
-					findingDuration.fullGap = findingDuration.halfGap;
-					findingDuration.halfGap = findingDuration.gapLength;
-					findingDuration.gapsFound = true;
-					console.log("halfGap is " + findingDuration.halfGap);
-					console.log("fullGap is " + findingDuration.fullGap);
+				if (findingDuration.gapsFound == false){
+					findGapDuration();
 				}
 			}
 
 		}
+
+findGapDuration = function(){
+	if (findingDuration.halfGap == 0){
+		findingDuration.halfGap = findingDuration.gapLength;
+	} //Tolerance of +-30
+	else if  (findingDuration.gapLength > (findingDuration.halfGap + 100)) {
+		findingDuration.fullGap = findingDuration.gapLength;
+		findingDuration.gapsFound = true;
+		console.log("halfGap is " + findingDuration.halfGap);
+		console.log("fullGap is " + findingDuration.fullGap);
+	}else if (findingDuration.gapLength < (findingDuration.halfGap - 100)){
+		findingDuration.fullGap = findingDuration.halfGap;
+		findingDuration.halfGap = findingDuration.gapLength;
+		findingDuration.gapsFound = true;
+		console.log("halfGap is " + findingDuration.halfGap);
+		console.log("fullGap is " + findingDuration.fullGap);
 	}
+}
 //Filling rawDataArray with times and taps
 
 //If currently pixel is bright, and previous index in the array is not then this is a tap.
