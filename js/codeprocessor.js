@@ -8,9 +8,14 @@
 let rxTranslateOutputRef = document.getElementById("rx-translated");
 let rxCodeOutputRef = document.getElementById("rx-code");
 
+let earlyTerm = {
+	isBright: true,
+}
+
 let findingDuration = {
 	duration: 0,
-	brightDarkDivide: 175,
+	brightDarkDivide: 200,
+	tolerance: 150,
 	prevBright: false,
 	halfGap: 0,
 	fullGap: 0,
@@ -33,7 +38,6 @@ let conversionInfo = {
 	prevDark: false,
 	ignoredFirst: false,
 	rawDataArray: [],
-	tempDataArray: [],
 };
 _listen = function(event)
 {
@@ -51,13 +55,22 @@ _listen = function(event)
 	greyScaledPixel = Math.floor(greyScaledPixel/1200);
 	console.log('____________________');
 	console.log(greyScaledPixel); 
+
+if (greyScaledPixel < findingDuration.brightDarkDivide == true){
+	earlyTerm.isBright = false;
+}
+else{
+	earlyTerm.isBright = true;
+}
+
+
 //GreyScaled Values Done here. Need to find method to store the data.
 
 
 //Finding the Gap Length.
 		//If currently dark, and previous tick is bright. Start of gap.
 		if (greyScaledPixel < findingDuration.brightDarkDivide && findingDuration.prevBright == true){
-			conversionInfo.tempDataArray.push('T');
+			conversionInfo.rawDataArray.push('T');
 			findingDuration.duration = event.timeStamp;
 			findingDuration.prevBright = false;
 			console.log("Gap Start");
@@ -72,7 +85,7 @@ _listen = function(event)
 			} else{
 				findingDuration.prevBright = true;
 				findingDuration.gapLength = Math.round(event.timeStamp - findingDuration.duration);
-				conversionInfo.tempDataArray.push(findingDuration.gapLength);
+				conversionInfo.rawDataArray.push(findingDuration.gapLength);
 				console.log("Gap End");
 				//Initialising first time Halfgap.
 				if (findingDuration.gapsFound == false){
@@ -86,44 +99,22 @@ findGapDuration = function(){
 	if (findingDuration.halfGap == 0){
 		findingDuration.halfGap = findingDuration.gapLength;
 	} //Tolerance of +-30
-	else if  (findingDuration.gapLength > (findingDuration.halfGap + 100)) {
-		findingDuration.fullGap = findingDuration.gapLength;
-		findingDuration.gapsFound = true;
-		console.log("halfGap is " + findingDuration.halfGap);
-		console.log("fullGap is " + findingDuration.fullGap);
-	}else if (findingDuration.gapLength < (findingDuration.halfGap - 100)){
-		findingDuration.fullGap = findingDuration.halfGap;
-		findingDuration.halfGap = findingDuration.gapLength;
-		findingDuration.gapsFound = true;
-		console.log("halfGap is " + findingDuration.halfGap);
-		console.log("fullGap is " + findingDuration.fullGap);
-	}
-}
-//Filling rawDataArray with times and taps
-
-//If currently pixel is bright, and previous index in the array is not then this is a tap.
-if (greyScaledPixel > 175 & conversionInfo.rawDataArray[conversionInfo.currentIndex  - 1] != 'T'){
-	console.log(conversionInfo.rawDataArray + conversionInfo.currentIndex);
-	conversionInfo.rawDataArray.push('T');
-	conversionInfo.currentIndex += 1;
-	conversionInfo.ignoredFirst = true;
-}
-/*If the current pixel is dark changing from bright, start duration timer until change from
-dark to bright. At this point, stop timing and store that duration.
-ignoredFirst value to ensure that it does not push the initial darkness prior to first light 
-*/
-if (conversionInfo.ignoredFirst == true){
-	if (greyScaledPixel < 175 & conversionInfo.prevDark == false) {
-		conversionInfo.duration = event.timeStamp;
-		conversionInfo.prevDark = true;
-	}
-	else if (greyScaledPixel > 175 & conversionInfo.prevDark == true){
-		conversionInfo.rawDataArray.push(Math.round(event.timeStamp - conversionInfo.duration));
-		conversionInfo.prevDark = false;
-		conversionInfo.currentIndex +=1
+		else if  (findingDuration.gapLength > (findingDuration.halfGap + findingDuration.tolerance)) {
+			findingDuration.fullGap = findingDuration.gapLength;
+			findingDuration.gapsFound = true;
+			console.log("halfGap is " + findingDuration.halfGap);
+			console.log("fullGap is " + findingDuration.fullGap);
+		}else if (findingDuration.gapLength < (findingDuration.halfGap - findingDuration.tolerance)){
+			findingDuration.fullGap = findingDuration.halfGap;
+			findingDuration.halfGap = findingDuration.gapLength;
+			findingDuration.gapsFound = true;
+			console.log("halfGap is " + findingDuration.halfGap);
+			console.log("fullGap is " + findingDuration.fullGap);
 		}
 	}
-}	
+}
+
+
 
 
 /**
@@ -141,26 +132,37 @@ clear = function()
 
 translate = function()
 {	
+	if (earlyTerm.isBright == true){
+		//Error out
+		alert("Stopped at tap");
+	}
+	else if (event.timeStamp - findingDuration.duration < findingDuration.halfGap + 150){
+		alert("Stopped in potential halfgap.")
+	}
+
 	console.log(conversionInfo.rawDataArray);
-	newArray = [];
+	translatedDataArray = [];
 	for (i = 0; i < conversionInfo.rawDataArray.length ; i++){
-		console.log('Still Working on it');
 		if (conversionInfo.rawDataArray[i] == 'T'){
-			newArray.push('T');
+			translatedDataArray.push('T');
 		}
 		else{
 			absoluteVal = Math.abs(conversionInfo.rawDataArray[i] - findingDuration.halfGap)
-			if (absoluteVal < 150){
-				newArray.push('H');
+			if (absoluteVal < findingDuration.tolerance){
+				translatedDataArray.push('H');
 			}
 			else{
-				newArray.push('F');
+				translatedDataArray.push('F');
 			}
 		}
 	}
-	console.log(newArray);
+	console.log(translatedDataArray);
 	rxTranslateOutputRef.innerHTML = "Code for Translate";
 	rxCodeOutputRef.innerHTML = "Code for Code";
 	console.log("Entered the Translate Function");
-	// your code here
+	console.log(findingDuration.halfGap);
+	console.log(findingDuration.fullGap);
+
+
+
 };
